@@ -17,3 +17,20 @@ def create_user(db: Session, name: str, age: int):
 
 def get_user_by_id(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
+
+def update_user(db: Session, user_id: int, name: str, age: int):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+
+        if user is None:
+            return None
+        
+        user.name = name
+        user.age = age
+
+        db.commit()
+        db.refresh(user)
+        return user
+    except Exception:
+        db.rollback()
+        raise

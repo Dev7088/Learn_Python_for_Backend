@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from services.user_service import fetch_users, fetch_user_by_id
+from services.user_service import fetch_users, fetch_user_by_id, update_existing_user
 
 from services.user_service import create_new_user
-from schemas.user_schema import UserCreate
+from schemas.user_schema import UserCreate, UserUpdate
 
 
 # from pydantic import BaseModel
@@ -44,3 +44,12 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     
     return user
+
+@app.put("/users/{user_id}")
+def update_user_api(user_id: int, user: UserUpdate, db: Session =  Depends(get_db)):
+    updated_user = update_existing_user(db, user_id, user)
+
+    if updated_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return updated_user
