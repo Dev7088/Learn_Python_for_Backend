@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
-from services.user_service import fetch_users, fetch_user_by_id, update_existing_user
+from services.user_service import fetch_users, fetch_user_by_id, update_existing_user, delete_existing_user
 
 from services.user_service import create_new_user
 from schemas.user_schema import UserCreate, UserUpdate
@@ -53,3 +53,13 @@ def update_user_api(user_id: int, user: UserUpdate, db: Session =  Depends(get_d
         raise HTTPException(status_code=404, detail="User not found")
     
     return updated_user
+
+@app.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user_api(user_id: int, db: Session = Depends(get_db)):
+    deleted = delete_existing_user(db, user_id)
+
+    if not deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
