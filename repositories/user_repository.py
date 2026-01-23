@@ -35,6 +35,27 @@ def update_user(db: Session, user_id: int, name: str, age: int):
         db.rollback()
         raise
 
+def patch_user(db: Session, user_id: int, name = None, age=None):
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        
+        if user is None:
+            return None
+        
+        if name is not None:
+            user.name = name
+
+        if age is not None:
+            user.age = age
+
+        db.commit()
+        db.refresh(user)
+        return user
+    
+    except Exception:
+        db.rollback()
+        raise
+
 def delete_user(db: Session, user_id: int):
     try:
         user = db.query(User).filter(User.id == user_id).first()
